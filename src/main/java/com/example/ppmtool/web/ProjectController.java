@@ -10,6 +10,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.List;
 
 
@@ -25,23 +26,23 @@ public class ProjectController {
     private MapValidationErrorService validationErrorService;
 
     @PostMapping("")
-    public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result) {
+    public ResponseEntity<?> createNewProject(@Valid @RequestBody Project project, BindingResult result, Principal principal) {
         ResponseEntity<?> errorMap = validationErrorService.validateRequest(result);
-        return errorMap == null ? new ResponseEntity<>(projectService.saveOrUpdateProject(project), HttpStatus.CREATED) : errorMap;
+        return errorMap == null ? new ResponseEntity<>(projectService.saveOrUpdateProject(project, principal.getName()), HttpStatus.CREATED) : errorMap;
     }
 
     @GetMapping("/{projectIdentifier}")
-    public ResponseEntity<?> findProjectById(@PathVariable String projectIdentifier) {
-        Project project = projectService.findProjectByIdentifier(projectIdentifier.toUpperCase());
+    public ResponseEntity<?> findProjectById(@PathVariable String projectIdentifier, Principal principal) {
+        Project project = projectService.findProjectByIdentifierAndUsername(projectIdentifier.toUpperCase(), principal.getName());
         return new ResponseEntity<>(project, HttpStatus.OK);
     }
 
     @GetMapping("")
-    public ResponseEntity<?> findAllProject() {
-        List<Project> allProjects = projectService.findAll();
-        if (allProjects.isEmpty()) {
+    public ResponseEntity<?> findAllProject(Principal principal) {
+        List<Project> allProjects = projectService.findAll(principal);
+/*        if (allProjects.isEmpty()) {
             return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-        }
+        }*/
         return new ResponseEntity<>(allProjects, HttpStatus.OK);
     }
 
@@ -52,13 +53,13 @@ public class ProjectController {
     }
 
     @PutMapping("/{projectIdentifier}")
-    public ResponseEntity<?> updateProjectById(@PathVariable String projectIdentifier,@Valid @RequestBody Project project, BindingResult result) {
+    public ResponseEntity<?> updateProjectById(@PathVariable String projectIdentifier,@Valid @RequestBody Project project, BindingResult result, Principal principal) {
         ResponseEntity<?> errorMap = validationErrorService.validateRequest(result);
-        Project retrieved = projectService.findProjectByIdentifier(projectIdentifier.toUpperCase());
+        Project retrieved = projectService.findProjectByIdentifierAndUsername(projectIdentifier.toUpperCase(), principal.getName());
         project.setId(retrieved.getId());
         project.setProjectIdentifier(retrieved.getProjectIdentifier());
         project.setCreatedAt(retrieved.getCreatedAt());
-        return errorMap == null ? new ResponseEntity<>(projectService.saveOrUpdateProject(project), HttpStatus.OK)
+        return errorMap == null ? new ResponseEntity<>(projectService.saveOrUpdateProject(project, principal.getName()), HttpStatus.OK)
                 : new ResponseEntity<>(errorMap, HttpStatus.BAD_REQUEST);
     }
 }

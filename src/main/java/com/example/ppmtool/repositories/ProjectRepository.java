@@ -9,4 +9,8 @@ public interface ProjectRepository extends CrudRepository<Project, Long> {
 
     Project findByProjectIdentifier(String projectIdentifier);
 
+    Iterable<Project> findAllByProjectLeader(String projectLeader);
+
+    Project findByProjectIdentifierAndProjectLeader(String projectIdentifier, String projectLeader);
+
 }

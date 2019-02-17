@@ -23,4 +23,10 @@ public class CustomResponseEntityExceptionHandler extends ResponseEntityExceptio
         NotFoundExceptionResponse response = new NotFoundExceptionResponse(nfe.getMessage());
         return new ResponseEntity<>(response, HttpStatus.NOT_FOUND);
     }
+
+    @ExceptionHandler
+    public final ResponseEntity<Object> handleUsernameNotUniqueException(UsernameNotUniqueException ex, WebRequest request) {
+        UsernameNotUniqueExceptionResponse response = new UsernameNotUniqueExceptionResponse(ex.getMessage());
+        return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
+    }
 }

@@ -1,6 +1,7 @@
 package com.example.ppmtool.exceptions;
 
 public class NotFoundExceptionResponse {
+
     private String errorMessage;
 
     public NotFoundExceptionResponse(String message) {
